@@ -3,3 +3,4 @@ pkg
 rdoc
 backup
 *~
+test/test_cases/*.yml

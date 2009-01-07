@@ -3,16 +3,15 @@ if Object.const_defined?(:YAML)
     module_function
 
     def load(io)
-      YAML.load(io
+      YAML.load(io)
     end
   end
-
-  return
-end
-
+else
+  
 require 'syck'
 
 module Syckle
+  
   Parser = YAML::Syck::Parser
   DefaultResolver = YAML::Syck::DefaultResolver
   TaggedClasses = {}
@@ -31,8 +30,16 @@ module Syckle
     resolver
   end
 
-  def load( io )
-    yp = parser.load( io )
+  def load(str)
+    begin
+      raise Syckle::Error unless str.kind_of?(String)
+      yp = parser.load( str )
+      
+    rescue(Exception)
+      require 'yaml'
+      Kernel.load(__FILE__)
+      YAML.load(str)
+    end
   end
   
   #
@@ -46,90 +53,31 @@ module Syckle
       }
       o
     else
-      raise Syckle::Error, "Invalid object explicitly tagged !ruby/Object: " + val.inspect
+      raise Syckle::Error
     end
   end
   
-  def read_type_class( type, obj_class )
-    scheme, domain, type, tclass = type.split( ':', 4 )
-    tclass.split( "::" ).each { |c| obj_class = obj_class.const_get( c ) } if tclass
-    return [ type, obj_class ]
-  end
-  
-  #
-  # Convert a type_id to a taguri
-  #
-  def tagurize( val )
-    resolver.tagurize( val )
-  end
-  
-  #
-  # Error messages
-  #
-
-  ERROR_NO_HEADER_NODE = "With UseHeader=false, the node Array or Hash must have elements"
-  ERROR_NEED_HEADER = "With UseHeader=false, the node must be an Array or Hash"
-  ERROR_BAD_EXPLICIT = "Unsupported explicit transfer: '%s'"
-  ERROR_MANY_EXPLICIT = "More than one explicit transfer"
-  ERROR_MANY_IMPLICIT = "More than one implicit request"
-  ERROR_NO_ANCHOR = "No anchor for alias '%s'"
-  ERROR_BAD_ANCHOR = "Invalid anchor: %s"
-  ERROR_MANY_ANCHOR = "More than one anchor"
-  ERROR_ANCHOR_ALIAS = "Can't define both an anchor and an alias"
-  ERROR_BAD_ALIAS = "Invalid alias: %s"
-  ERROR_MANY_ALIAS = "More than one alias"
-  ERROR_ZERO_INDENT = "Can't use zero as an indentation width"
-  ERROR_UNSUPPORTED_VERSION = "This release of YAML.rb does not support YAML version %s"
-  ERROR_UNSUPPORTED_ENCODING = "Attempt to use unsupported encoding: %s"
-
-  #
-  # YAML Error classes
-  #
-
   class Error < StandardError; end
-  class ParseError < Error; end
-  class TypeError < StandardError; end
+end
+
+module YAML
+  class PrivateType
+    def initialize( domain, type, val )
+      raise Syckle::Error
+    end
+  end
+  
+  class DomainType
+    def initialize( domain, type, val )
+      raise Syckle::Error
+    end
+  end
 end
 
 class Module
-  # :stopdoc:
-
-  # Adds a taguri _tag_ to a class, used when dumping or loading the class
-  # in YAML.  See YAML::tag_class for detailed information on typing and
-  # taguris.
   def yaml_as( tag, sc = true )
-      verbose, $VERBOSE = $VERBOSE, nil
-      class_eval <<-"end;", __FILE__, __LINE__+1
-          attr_writer :taguri
-          def taguri
-              if respond_to? :to_yaml_type
-                  Syckle::tagurize( to_yaml_type[1..-1] )
-              else
-                  return @taguri if defined?(@taguri) and @taguri
-                  tag = #{ tag.dump }
-                  if self.class.yaml_tag_subclasses? and self.class != YAML::tagged_classes[tag]
-                      tag = "\#{ tag }:\#{ self.class.yaml_tag_class_name }"
-                  end
-                  tag
-              end
-          end
-          def self.yaml_tag_subclasses?; #{ sc ? 'true' : 'false' }; end
-      end;
-      Syckle::TaggedClasses[tag] = self
-  ensure
-      $VERBOSE = verbose
+    Syckle::TaggedClasses[tag] = self
   end
-  
-    # # Transforms the subclass name into a name suitable for display
-    # # in a subclassed tag.
-    # def yaml_tag_class_name
-    #     self.name
-    # end
-    # # Transforms the subclass name found in the tag into a Ruby
-    # # constant name.
-    # def yaml_tag_read_class( name )
-    #     name
-    # end
 end
 
 class Object
@@ -147,46 +95,7 @@ class Hash
     elsif Hash === val
       update val
     else
-      raise Syckle::TypeError, "Invalid map explicitly tagged #{ tag }: " + val.inspect
-    end
-  end
-end
-
-class Struct
-  yaml_as "tag:ruby.yaml.org,2002:struct"
-  def self.yaml_tag_class_name; self.name.gsub( "Struct::", "" ); end
-  def self.yaml_tag_read_class( name ); "Struct::#{ name }"; end
-  def self.yaml_new( klass, tag, val )
-    if Hash === val
-      struct_type = nil
-
-      #
-      # Use existing Struct if it exists
-      #
-      props = {}
-      val.delete_if { |k,v| props[k] = v if k =~ /^@/ }
-      begin
-        struct_name, struct_type = Syckle.read_type_class( tag, Struct )
-      rescue NameError
-      end
-      if not struct_type
-        struct_def = [ tag.split( ':', 4 ).last ]
-        struct_type = Struct.new( *struct_def.concat( val.keys.collect { |k| k.intern } ) ) 
-      end
-
-      #
-      # Set the Struct properties
-      #
-      st = Syckle::object_maker( struct_type, {} )
-      st.members.each do |m|
-        st.send( "#{m}=", val[m] )
-      end
-      props.each do |k,v|
-        st.instance_variable_set(k, v)
-      end
-      st
-    else
-      raise Syckle::TypeError, "Invalid Ruby Struct: " + val.inspect
+      raise Syckle::Error
     end
   end
 end
@@ -195,17 +104,6 @@ class Array
   yaml_as "tag:ruby.yaml.org,2002:array"
   yaml_as "tag:yaml.org,2002:seq"
   def yaml_initialize( tag, val ); concat( val.to_a ); end
-end
-
-class Exception
-  yaml_as "tag:ruby.yaml.org,2002:exception"
-  def Exception.yaml_new( klass, tag, val )
-    o = Syckle.object_maker( klass, { 'mesg' => val.delete( 'message' ) } )
-    val.each_pair do |k,v|
-      o.instance_variable_set("@#{k}", v)
-    end
-    o
-  end
 end
 
 class String
@@ -224,7 +122,7 @@ class String
       val.each { |k,v| s.instance_variable_set( k, v ) }
       s
     else
-      raise Syckle::TypeError, "Invalid String: " + val.inspect
+      raise Syckle::Error
     end
   end
 end
@@ -237,7 +135,7 @@ class Symbol
       val = Syckle::load( val ) if val =~ /\A(["']).*\1\z/
       val.intern
     else
-      raise Syckle::TypeError, "Invalid Symbol: " + val.inspect
+      raise Syckle::Error
     end
   end
 end
@@ -269,7 +167,7 @@ class Range
       val.each { |k,v| r.instance_variable_set( k, v ) }
       r
     else
-      raise Syckle::TypeError, "Invalid Range: " + val.inspect
+      raise Syckle::Error
     end
   end
 end
@@ -296,7 +194,7 @@ class Regexp
       val.each { |k,v| r.instance_variable_set( k, v ) }
       r
     else
-      raise Syckle::TypeError, "Invalid Regular expression: " + val.inspect
+      raise Syckle::Error
     end
   end
 end
@@ -310,13 +208,9 @@ class Time
       val.each { |k,v| t.instance_variable_set( k, v ) }
       t
     else
-      raise Syckle::TypeError, "Invalid Time: " + val.inspect
+      raise Syckle::Error
     end
   end
-end
-
-class Date
-  yaml_as "tag:yaml.org,2002:timestamp#ymd"
 end
 
 class Integer
@@ -340,4 +234,5 @@ class NilClass
 end
 
 Object.send(:remove_const, :YAML)
-autoload(:YAML, 'yaml')
+$".delete('syck.bundle')
+end

@@ -15,14 +15,14 @@ class SyckleTest < Test::Unit::TestCase
   end
   
   def test_syckle_loads_basic_types_same_as_YAML
-    assert !Object.const_defined?(:YAML)
+    assert !$".include?("yaml.rb")
     
     index = 0
     TEST_CASES.each do |obj|
-      assert_equal obj, Syckle.load(test_case(index)), index
+      assert_equal obj, Syckle.load(test_case(index)), obj.inspect
       index += 1
     end
     
-    assert !Object.const_defined?(:YAML)
+    assert !$".include?("yaml.rb")
   end
 end

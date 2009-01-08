@@ -3,3 +3,9 @@ task :test do
     system("ruby '#{test}'")
   end
 end
+
+task :bm do 
+  Dir.glob("test/*_benchmark.rb").each do |test|
+    system("ruby '#{test}'")
+  end
+end

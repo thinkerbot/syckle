@@ -1,0 +1,2 @@
+YAML = Syckle
+require 'yaml'

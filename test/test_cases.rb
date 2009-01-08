@@ -1,13 +1,14 @@
 TEST_CASES = [
   nil, true, false,
   1, 1.2,
-  "string", :symbol, {:key => 'value'}, [1,2,3], /abc/i, 1..10, 'a'..'z',
-  
+  "true", "false", "yes", "no", "",
+  "string", :symbol, {:key => 'value'}, [1,2,3], 
   { 'string' => "a long\n string with \t\nnewlines and whitespace",
-    'array' => [{:key => 'value'}, /abc/i, 'str', :sym, 1],
+    'array' => [{:key => 'value'}, 'str', :sym, 1],
     'hash' => {:hash => {:key => 'value'}},
     :sym => :symbol,
-    1 => 1.2}
+    1 => 1.2},
+  ['a', :b, 3, {'key' => 'value'}, [:x, 'y', false]]
 ]
 
 if __FILE__ == $0

@@ -10,7 +10,7 @@ end
 $:.unshift "#{File.dirname(__FILE__)}/../lib"
 require 'syckle'
 
-class SyckleAfterYamlTest < Test::Unit::TestCase
+class SyckleDefersToYamlIfYamlIsDefinedTest < Test::Unit::TestCase
   
   def test_syckle_defers_to_YAML_if_YAML_is_defined
     assert !$".include?("syckle/load.rb")

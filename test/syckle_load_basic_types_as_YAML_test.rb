@@ -8,7 +8,7 @@ test_cases = "#{File.dirname(__FILE__)}/test_cases.rb"
 system("ruby '#{test_cases}'")
 require test_cases
 
-class SyckleTest < Test::Unit::TestCase
+class SyckleLoadsBasicTypesAsYamlTest < Test::Unit::TestCase
   
   def test_case(index)
     File.read("#{File.dirname(__FILE__)}/test_cases/#{index}.yml")

@@ -3,7 +3,7 @@ require 'test/unit'
 $:.unshift "#{File.dirname(__FILE__)}/../lib"
 require 'syckle'
 
-class SyckleThenYamlTest < Test::Unit::TestCase
+class SyckleLoadAndDefersToYamlOnError < Test::Unit::TestCase
   
   def test_syckle_loads_and_defers_to_YAML_on_error
     assert !$".include?("yaml.rb")

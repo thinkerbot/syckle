@@ -1,0 +1,53 @@
+= Syckle
+
+A sick little syck loader.
+
+== Description
+
+YAML is great and complete, but load relatively slowly in large part because
+it loads everything at once.  In cases where you need to quickly load a
+simple YAML configuration file, the overhead is too much.
+
+Syckle is a very simple syck binding that can load basic ruby types:
+true, false, nil, numbers, strings, symbols, arrays, and hashes.  When
+Syckle.load encounters a more complex object, it autoloads YAML and
+defers to YAML.load.  The result is a quicker-loading, seamless
+alternative to using YAML.
+
+Benchmarks indicate a require + load using Syckle is about 10x faster than
+the same using YAML, entirely due to the require time.
+
+== Usage
+
+Simply require syckle instead of yaml.  YAML will be set for autoloading
+as necessary, and can be required at a later time if necessary (although
+note that using syckle only provides a load-time benefit up until YAML
+is loaded, duh).
+
+  start = Time.now
+  
+  require 'syckle'
+  Syckle.load("key: value")   # => {'key' => 'value'}
+  
+  puts "#{Time.now-start} s"
+
+=== Bugs/Known Issues
+
+- Syckle seems to work on both Ruby 1.8.* and Ruby 1.9.1.  It does not work
+  on JRuby (I don't think JRuby uses syck).  One word of caution, for reasons
+  unknown, an autoloading test under 1.9 was found to hang when written one
+  way and not when written in what looks to be an identical way.  See the
+  {syckle_allows_subsequent_autoloads_test.rb}[]
+
+== Installation
+
+Syckle is available as a gem on GitHub[http://rubyforge.org/projects/tap].  Use:
+
+  % gem install bahuvrihi-syckle
+
+== Info 
+
+Copyright (c) 2008, Regents of the University of Colorado.
+Developer:: {Simon Chiang}[http://bahuvrihi.wordpress.com], {Biomolecular Structure Program}[http://biomol.uchsc.edu/], {Hansen Lab}[http://hsc-proteomics.uchsc.edu/hansenlab/] 
+Support:: CU Denver School of Medicine Deans Academic Enrichment Fund
+Licence:: {MIT-Style}[link:files/MIT-LICENSE.html]

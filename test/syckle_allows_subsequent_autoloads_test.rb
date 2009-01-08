@@ -1,10 +1,12 @@
 require 'test/unit'
 $:.unshift "#{File.dirname(__FILE__)}/../lib"
 
-class SyckleAutoloadsYamlWithoutErrorTest < Test::Unit::TestCase
+class SyckleAllowsSubsequentAutoloadsTest < Test::Unit::TestCase
   
-  def test_syckle_autoloads_YAML_without_error
+  def test_syckle_allows_subsequent_autoloads
     require 'syckle'
+    autoload(:YAML, 'yaml')
+    
     assert !$".include?("yaml.rb")
     
     e = YAML.load("--- !ruby/exception \nmessage: Exception\n")

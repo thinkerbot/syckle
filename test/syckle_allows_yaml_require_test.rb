@@ -1,11 +1,10 @@
 require 'test/unit'
-
 $:.unshift "#{File.dirname(__FILE__)}/../lib"
-require 'syckle'
 
 class SyckleAllowsYamlRequireTest < Test::Unit::TestCase
   
   def test_syckle_allows_yaml_require
+    require 'syckle'
     assert !$".include?("yaml.rb")
     
     require 'yaml'

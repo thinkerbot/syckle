@@ -1,11 +1,10 @@
 require 'test/unit'
-
 $:.unshift "#{File.dirname(__FILE__)}/../lib"
-require 'syckle'
 
 class SyckleLoadAndDefersToYamlOnError < Test::Unit::TestCase
   
   def test_syckle_loads_and_defers_to_YAML_on_error
+    require 'syckle'
     assert !$".include?("yaml.rb")
     
     e = Syckle.load("--- !ruby/exception \nmessage: Exception\n")

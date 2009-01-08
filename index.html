@@ -52,17 +52,14 @@
        A sick little syck loader.
     </div>
 
-    <p>YAML is great and complete, but load relatively slowly in large part because it loads everything at once.  In cases where you need to quickly load a simple YAML configuration file, the overhead is too much.
-
+    <p>
 Syckle is a very simple syck binding that can load basic ruby types: true, false, nil, numbers, strings, symbols, arrays, and hashes.  When Syckle.load encounters a more complex object, it autoloads YAML and defers to YAML.load.  The result is a quicker-loading, seamless alternative to using YAML.
-
+</p>
+<p>
 Benchmarks indicate a require + load using Syckle is about 10x faster than the same using YAML, entirely due to the require time.</p><h2>License</h2>
 <p>MIT-LICENSE</p>
 <h2>Authors</h2>
-<p>Simon Chiang (simon.a.chiang@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Simon Chiang (simon.a.chiang@gmail.com)<br/>      </p>
-
+<p>Simon Chiang (simon.a.chiang@gmail.com)<br/></p>
 
     <h2>Download</h2>
     <p>

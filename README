@@ -1,4 +1,4 @@
-= Syckle
+= {Syckle}[http://bahuvrihi.github.com/syckle]
 
 A sick little syck loader.
 
@@ -36,8 +36,8 @@ is loaded, duh).
 - Syckle seems to work on both Ruby 1.8.* and Ruby 1.9.1.  It does not work
   on JRuby (I don't think JRuby uses syck).  One word of caution, for reasons
   unknown, an autoloading test under 1.9 was found to hang when written one
-  way and not when written in what looks to be an identical way.  See the
-  {syckle_allows_subsequent_autoloads_test.rb}[]
+  way and not when written in what looks to be an identical way.  See
+  {syckle_allows_subsequent_autoloads_test.rb}[http://github.com/bahuvrihi/syckle/tree/master/test/syckle_allows_subsequent_autoloads_test.rb]
 
 == Installation
 

@@ -2,10 +2,11 @@ require 'syck'
 
 Syckle = YAML
 Object.send(:remove_const, :YAML)
-autoload(:YAML, "#{File.expand_path(File.dirname(__FILE__))}/syck.rb")
+
+$:.unshift File.expand_path(File.dirname(__FILE__))
+autoload(:YAML, "syck")
 
 module Syckle
-
   Syck::DefaultResolver.use_types_at(
     "tag:ruby.yaml.org,2002:symbol" => Symbol,
     "tag:ruby.yaml.org,2002:sym" => Symbol)
@@ -17,7 +18,7 @@ module Syckle
       yp = SyckleParser.load( str )
     
     rescue(Exception)
-      require 'syckle/syck'
+      require 'syck'
       load(str)
     end
   end

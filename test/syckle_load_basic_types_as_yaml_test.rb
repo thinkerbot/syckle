@@ -8,20 +8,17 @@ require test_cases
 
 class SyckleLoadsBasicTypesAsYamlTest < Test::Unit::TestCase
   
-  def test_case(index)
+  def syckle_case(index)
     File.read("#{File.dirname(__FILE__)}/test_cases/#{index}.yml")
   end
   
   def test_syckle_loads_basic_types_same_as_YAML
     require 'syckle'
-    assert !$".include?("yaml.rb")
-    
+
     index = 0
     TEST_CASES.each do |obj|
-      assert_equal obj, Syckle.load(test_case(index)), obj.inspect
+      assert_equal obj, Syckle.load(syckle_case(index)), obj.inspect
       index += 1
     end
-    
-    assert !$".include?("yaml.rb")
   end
 end
